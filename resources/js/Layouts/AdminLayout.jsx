@@ -35,12 +35,46 @@ export default function AdminLayout({ children, title = 'Dashboard' }) {
         } bg-slate-900 text-slate-200 transition-all duration-300 flex flex-col h-screen border-r border-slate-800`}
       >
         {/* Brand Header */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800">
+        {/* <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800">
           {sidebarOpen && (
             <span className="font-bold text-lg text-emerald-400 tracking-wider">
               ADMIN CORE
             </span>
           )}
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors"
+          >
+            ☰
+          </button>
+        </div> */}
+        <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800">
+          <Link href="/dashboard" className="flex items-center gap-3">
+            {/* SVG Icon / Emblem Logo */}
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0">
+              <svg
+                className="w-5 h-5 text-emerald-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+              </svg>
+            </div>
+
+            {/* Teks Brand (Hanya Muncul saat Sidebar Terbuka) */}
+            {sidebarOpen && (
+              <span className="font-bold text-lg text-white tracking-wider">
+                ADMIN<span className="text-emerald-400">CORE</span>
+              </span>
+            )}
+          </Link>
+
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors"
