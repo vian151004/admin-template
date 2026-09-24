@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 
 export default function AdminLayout({ children, title = 'Dashboard' }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
   const { auth } = usePage().props;
 
   const navigation = [
@@ -12,6 +15,17 @@ export default function AdminLayout({ children, title = 'Dashboard' }) {
     { name: 'Pengaturan', href: '#', icon: '⚙️' },
   ];
 
+  // Efek untuk menutup dropdown jika pengguna mengklik di luar area dropdown
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setUserDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
     <div className="flex h-screen bg-slate-100 font-sans overflow-hidden">
       {/* SIDEBAR */}
@@ -20,7 +34,7 @@ export default function AdminLayout({ children, title = 'Dashboard' }) {
           sidebarOpen ? 'w-64' : 'w-20'
         } bg-slate-900 text-slate-200 transition-all duration-300 flex flex-col h-screen border-r border-slate-800`}
       >
-        {/* Logo / Brand Header */}
+        {/* Brand Header */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800">
           {sidebarOpen && (
             <span className="font-bold text-lg text-emerald-400 tracking-wider">
@@ -35,7 +49,7 @@ export default function AdminLayout({ children, title = 'Dashboard' }) {
           </button>
         </div>
 
-        {/* Navigasi Utama */}
+        {/* Navigation Items */}
         <nav className="flex-1 p-3 space-y-1">
           {navigation.map((item, idx) => (
             <Link
@@ -49,7 +63,7 @@ export default function AdminLayout({ children, title = 'Dashboard' }) {
           ))}
         </nav>
 
-        {/* User / Logout */}
+        {/* Footer / Logout Button */}
         <div className="p-4 border-t border-slate-800">
           <Link
             href={route('logout')}
@@ -69,20 +83,70 @@ export default function AdminLayout({ children, title = 'Dashboard' }) {
         <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-10 shadow-sm">
           <h1 className="font-semibold text-lg text-slate-800">{title}</h1>
 
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3 pl-4 border-l border-slate-200">
-              <div className="w-8 h-8 rounded-full bg-emerald-500 text-white font-bold flex items-center justify-center text-sm shadow">
+          {/* USER PROFILE DROPDOWN */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+              className="flex items-center gap-3 pl-4 border-l border-slate-200 hover:opacity-80 transition-opacity focus:outline-none"
+            >
+              <div className="w-9 h-9 rounded-full bg-emerald-500 text-white font-bold flex items-center justify-center text-sm shadow">
                 {auth?.user?.name ? auth.user.name[0].toUpperCase() : 'A'}
               </div>
               <div className="text-left hidden md:block">
-                <p className="text-sm font-semibold text-slate-800">
-                  {auth?.user?.name || 'Admin User'}
+                <p className="text-sm font-semibold text-slate-800 leading-tight">
+                  {auth?.user?.name || 'admin'}
                 </p>
                 <p className="text-xs text-slate-500">
-                  {auth?.user?.email || 'admin@example.com'}
+                  {auth?.user?.email || 'admin@gmail.com'}
                 </p>
               </div>
-            </div>
+              <span className="text-xs text-slate-400 hidden md:block ml-1">
+                {userDropdownOpen ? '▲' : '▼'}
+              </span>
+            </button>
+
+            {/* POPUP DROPDOWN MENU */}
+            {userDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-slate-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                {/* Header Info User */}
+                <div className="px-4 py-2 border-b border-slate-100">
+                  <p className="text-sm font-semibold text-slate-800">
+                    {auth?.user?.name || 'admin'}
+                  </p>
+                  <p className="text-xs text-slate-500 truncate">
+                    {auth?.user?.email || 'admin@gmail.com'}
+                  </p>
+                </div>
+
+                {/* List Menu Options */}
+                <div className="py-1">
+                  <Link
+                    href={route('profile.edit')}
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                  >
+                    <span>⚙️</span> Pengaturan Profil
+                  </Link>
+                  <a
+                    href="#"
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                  >
+                    <span>🔄</span> Ganti Akun
+                  </a>
+                </div>
+
+                {/* Divider & Logout */}
+                <div className="border-t border-slate-100 pt-1">
+                  <Link
+                    href={route('logout')}
+                    method="post"
+                    as="button"
+                    className="w-full text-left flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors font-medium"
+                  >
+                    <span>🚪</span> Keluar / Logout
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
         </header>
 
